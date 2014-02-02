@@ -1,5 +1,3 @@
-*author*: mako yass.
-
 *interactive example*: [syhexGen](http://makopool.com/syhexGen.html)
 
 *note*: depends MersenneTwister.js   https://gist.github.com/banksean/300494
@@ -14,7 +12,9 @@
 	var con = canvas.getContext('2d');
 	
 	drawHexFace(con, seed, 'rgb(255,255,255)', 'rgb(68,68,68)')
+	
 or like,
+
 	con.fillStyle = '#ffffff'
 	pathHexFace(con, seed)
 	con.fill();
