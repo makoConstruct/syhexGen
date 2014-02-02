@@ -35,10 +35,10 @@ function drawHexFace(con, seed, iconFillStyle, circleFillStyle){ //draws one ove
 	var shi = hi*scaleFactor;
 	var sx = (wi - swi)/2;
 	var sy = (hi - shi)/2;
-	con.fillStyle = circleFill;
+	con.fillStyle = circleFillStyle;
 	con.arc(wi/2, hi/2, ra, 0, Math.PI*2);
 	con.fill();
-	con.fillStyle = iconFill;
+	con.fillStyle = iconFillStyle;
 	pathHexFace(con, seed, sx, sy, swi, shi);
 	con.fill();
 }
