@@ -53,7 +53,7 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	var span = ((wi < hi*widthOverHeight)?wi:hi*widthOverHeight);
 	var hexradius =
 		span/(2*(w-1)*hexfaces_root3over4 + 2); // ': (w-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
-	anyonesTwister.init_genrand(seed);
+	anyonesTwister.init_genrand(seed + 4189);
 	var x = xin + wi/2 - Math.floor(w/2)*2*hexradius*hexfaces_root3over4;
 	var y = yin + hi/2 - (h-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(w/2);
 	
@@ -72,9 +72,8 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	do{
 		for(var i=0; i<spec.length; ++i)
 			spec[i] = takeRBit();
-		spec[spec.length - 1] = 1;
-		spec[spec.length - 1 - h] = 1;
 		var topHasSomething = false;
+		var bottomHasSomething = false;
 		for(var i=0, col=h-off; i<spec.length; i += (col++)){
 			if(spec[i] == 1){
 				topHasSomething = true;
@@ -87,7 +86,7 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 				break;
 			}
 		}
-	}while(!topHasSomething);
+	}while(!topHasSomething || !bottomHasSomething);
 	
 	//make sheet from spec
 	var sheet = new Array(w*h);
