@@ -1,7 +1,14 @@
-/*author: mako yass */
+/* author: mako yass */
 
-/* note: depends MersenneTwister.js   https://gist.github.com/banksean/300494 */
-anyonesTwister = new MersenneTwister();
+/* note: depends Wellrng.js   https://github.com/gmalysa/well-rng */
+function newWell(seed){
+	var star = new Array(32);
+	for(var i=0; i<32; ++i){
+		var cell = ((seed&(i*5)) ^ (seed>>i)); //this is all kind of arbitrary, but you'd be surprised how many methods didn't successfully initialize the rng.
+		star[i] = cell & cell;} //[converts to int32]
+	star[0] = seed;
+	return new WELL(star);
+}
 /* parenthetical: (We don't need a secure hash, we just need a standard hash that can be repeated in a C environment. If someone could whip up a shoddier more efficient psuedohash that works the same as a minimal add, multiply and modulo psuedohash in C, that'd be appreciated.) */
 
 
@@ -53,23 +60,28 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	var span = ((wi < hi*widthOverHeight)?wi:hi*widthOverHeight);
 	var hexradius =
 		span/(2*(w-1)*hexfaces_root3over4 + 2); // ': (w-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
-	anyonesTwister.init_genrand(seed + 4189);
+	var katy = newWell(seed ^ 1303);
 	var x = xin + wi/2 - Math.floor(w/2)*2*hexradius*hexfaces_root3over4;
 	var y = yin + hi/2 - (h-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(w/2);
 	
 	//make syhexSpec from seed
-	var presents = anyonesTwister.genrand_int32();
-	var bitsTaken = 0;
+	
+	// var presents = katy.randBits(32);
+	// var bitsTaken = 0;
 	var takeRBit = function(){
-		if(bitsTaken == 31){
-			bitsTaken = 0;
-			presents = anyonesTwister.genrand_int32();
-		}
-		return 1 & (presents >> (bitsTaken++));
+		return katy.randInt(0,1);
+		// if(bitsTaken == 31){
+		// 	bitsTaken = 0;
+		// 	presents = katy.randBits(32);
+		// }
+		// return 1 & (presents >> (bitsTaken++));
 	};
 	var off = Math.floor(w/2);
 	spec = new Array((h-off)*(off+1) + (off*(off+1))/2);
+	var counter=0;
 	do{
+		if(++counter > 9000)
+			throw "something's wrong. katy isn't generating any valid candidates.";
 		for(var i=0; i<spec.length; ++i)
 			spec[i] = takeRBit();
 		var topHasSomething = false;
