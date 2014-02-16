@@ -31,6 +31,9 @@ function newWell(seed){
 
 var hexfaces_root3over4 = Math.sqrt(3/4);
 var hexfaces_outerOverInner = Math.sqrt(5/4);
+var hexfaces_conf = {
+	cellsAcross : 5, cellsDown : 5 //you can change/parametize these if you like. Note, w should be an odd number, or else weirdness.
+}
 
 function drawHexFace(con, seed, iconFillStyle, circleFillStyle, innerProportion){ //draws one over a circle, where radius of the inner icon = (radius of circle)*innerProportion. innerProportion is optional and defaults to 0.8.
 	var scaleFactor = innerProportion || 0.75;
@@ -52,18 +55,17 @@ function drawHexFace(con, seed, iconFillStyle, circleFillStyle, innerProportion)
 }
 
 function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 5*5 face. You do the filling.  xin, yin, wi and hi specify the dimensions of the hexface on the canvas and are optional, default to being centered and maximized in the canvas context.
-	var w = 5, h = 5, padding = 0; //you can change/parametize these if you like. Note, w must be an odd number.
-	wi = wi || con.canvas.width;
-	hi = hi || con.canvas.height;
-	xin = xin || 0;
-	yin = yin || 0;
-	var widthOverHeight = ((w-1)*hexfaces_root3over4 + 1/hexfaces_outerOverInner)/(h-1 + 1/hexfaces_outerOverInner);
+	var wi = wi || con.canvas.width;
+	var hi = hi || con.canvas.height;
+	var xin = xin || 0;
+	var yin = yin || 0;
+	var widthOverHeight = ((hexfaces_conf.cellsAcross-1)*hexfaces_root3over4 + 1/hexfaces_outerOverInner)/(hexfaces_conf.cellsDown-1 + 1/hexfaces_outerOverInner);
 	var span = ((wi < hi*widthOverHeight)?wi:hi*widthOverHeight);
 	var hexradius =
-		span/(2*(w-1)*hexfaces_root3over4 + 2); // ': (w-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
+		span/(2*(hexfaces_conf.cellsAcross-1)*hexfaces_root3over4 + 2); // ': (hexfaces_conf.cellsAcross-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
 	var katy = newWell(seed ^ 666);
-	var x = xin + wi/2 - Math.floor(w/2)*2*hexradius*hexfaces_root3over4;
-	var y = yin + hi/2 - (h-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(w/2);
+	var x = xin + wi/2 - Math.floor(hexfaces_conf.cellsAcross/2)*2*hexradius*hexfaces_root3over4;
+	var y = yin + hi/2 - (hexfaces_conf.cellsDown-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(hexfaces_conf.cellsAcross/2);
 	
 	//make syhexSpec from seed
 	
@@ -77,8 +79,8 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 		// }
 		// return 1 & (presents >> (bitsTaken++));
 	};
-	var off = Math.floor(w/2);
-	spec = new Array((h-off)*(off+1) + (off*(off+1))/2);
+	var off = Math.floor(hexfaces_conf.cellsAcross/2);
+	spec = new Array((hexfaces_conf.cellsDown-off)*(off+1) + (off*(off+1))/2);
 	var counter=0;
 	do{
 		if(++counter > 9000)
@@ -87,35 +89,42 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 			spec[i] = takeRBit();
 		var topHasSomething = false;
 		var bottomHasSomething = false;
-		for(var i=0, col=h-off; i<spec.length; i += (col++)){
+		for(var i=0, col=hexfaces_conf.cellsDown-off; i<spec.length; i += (col++)){
 			if(spec[i] == 1){
 				topHasSomething = true;
 				break;
 			}
 		}
-		for(var i=h-off-1, col=h-off; i<spec.length; i += (++col)){
+		for(var i=hexfaces_conf.cellsDown-off-1, col=hexfaces_conf.cellsDown-off; i<spec.length; i += (++col)){
 			if(spec[i] == 1){
 				bottomHasSomething = true;
 				break;
 			}
 		}
 	}while(!topHasSomething || !bottomHasSomething);
-	
+	pathHexFaceFromSpec(con, spec, xin, yin, wi, hi);
+}
+
+function pathHexFaceFromSpec(con, spec, xin, yin, wi, hi){ //allows to specify the icon, a spec is a column major array of the cells of the left side of the hex, 1 for filled, 0 for empty
 	//make sheet from spec
-	var sheet = new Array(w*h);
-	var arms = Math.ceil(w/2);
+	var wi = wi || con.canvas.width;
+	var hi = hi || con.canvas.height;
+	var xin = xin || 0;
+	var yin = yin || 0;
+	var sheet = new Array(hexfaces_conf.cellsAcross*hexfaces_conf.cellsDown);
+	var arms = Math.ceil(hexfaces_conf.cellsAcross/2);
 	var lXStart = 0;
 	var lYStart = 0;
-	var columnLength = h - (arms-1);
-	var rXStart = w-1;
+	var columnLength = hexfaces_conf.cellsDown - (arms-1);
+	var rXStart = hexfaces_conf.cellsAcross-1;
 	var rYStart = arms-1;
 	var specc = 0;
 	while(arms > 0){
 		for(var d=0; d<columnLength; ++d){
 			if(spec[specc++] == 1){
-				sheet[lXStart + (lYStart+d)*w] = 1;
+				sheet[lXStart + (lYStart+d)*hexfaces_conf.cellsAcross] = 1;
 				if(lXStart != rXStart)
-					sheet[rXStart + (rYStart+d)*w] = 1;
+					sheet[rXStart + (rYStart+d)*hexfaces_conf.cellsAcross] = 1;
 			}
 		}
 		--arms;
@@ -128,6 +137,12 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	
 	//draw the sheet
 	con.beginPath();
+	var widthOverHeight = ((hexfaces_conf.cellsAcross-1)*hexfaces_root3over4 + 1/hexfaces_outerOverInner)/(hexfaces_conf.cellsDown-1 + 1/hexfaces_outerOverInner);
+	var span = ((wi < hi*widthOverHeight)?wi:hi*widthOverHeight);
+	var hexradius =
+		span/(2*(hexfaces_conf.cellsAcross-1)*hexfaces_root3over4 + 2); // ': (hexfaces_conf.cellsAcross-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
+	var x = xin + wi/2 - Math.floor(hexfaces_conf.cellsAcross/2)*2*hexradius*hexfaces_root3over4;
+	var y = yin + hi/2 - (hexfaces_conf.cellsDown-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(hexfaces_conf.cellsAcross/2);
 	var circ = function(x,y){
 		con.arc(x,y,hexradius/hexfaces_outerOverInner,0,Math.PI*2,true);
 		con.closePath();
@@ -169,11 +184,11 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	};
 	var hexAt = function(ix,iy){
 		if( /*excuse the unterse style, my chrome has a bug*/
-			ix < 0 || ix >= w ||
-			iy < 0 || iy >= h)
+			ix < 0 || ix >= hexfaces_conf.cellsAcross ||
+			iy < 0 || iy >= hexfaces_conf.cellsDown)
 				return false;
 			else
-				return sheet[ix + iy*w] == 1;
+				return sheet[ix + iy*hexfaces_conf.cellsAcross] == 1;
 	}
 	var toCanv = function(ix,iy){
 		return [
@@ -181,8 +196,8 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 			y + iy*hexradius*2 - ix*hexradius
 		];
 	}
-	for(var xi=0; xi<w; ++xi){
-		for(var yi=0; yi<h; ++yi){
+	for(var xi=0; xi<hexfaces_conf.cellsAcross; ++xi){
+		for(var yi=0; yi<hexfaces_conf.cellsDown; ++yi){
 			//each cell here draws a line to the cells on its left and top iff those cells are lit.
 			if(hexAt(xi,yi)){
 				var l = toCanv(xi,yi);

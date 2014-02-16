@@ -18,3 +18,7 @@ or like,
 	con.fillStyle = '#ffffff'
 	pathHexFace(con, seed)
 	con.fill();
+
+You can path a syhex according to a predetermined icon spec like this:
+
+	pathHexFaceFromSpec(con, [1,1,1, 1,0,0,1, 1,0,0,0,1])
