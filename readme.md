@@ -8,7 +8,7 @@
 	//usage examples:
 	canvas = document.createElement('canvas');
 	canvas.width = canvas.height = 120 or whatever;
-	var seed = some arbitrary number;
+	var seed = some number, this determines which face you get;
 	var con = canvas.getContext('2d');
 	
 	drawHexFace(con, seed, 'rgb(255,255,255)', 'rgb(68,68,68)')
