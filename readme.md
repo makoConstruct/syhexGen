@@ -22,3 +22,9 @@ or like,
 You can path a syhex according to a predetermined icon spec like this:
 
 	pathHexFaceFromSpec(con, [1,1,1, 1,0,0,1, 1,0,0,0,1])
+
+And
+	
+	drawHexFace(con, [1,1,1, 1,0,0,1, 1,0,0,0,1], 'rgb(255,255,255)', 'rgb(68,68,68)')
+	
+will also work.

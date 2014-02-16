@@ -35,7 +35,7 @@ var hexfaces_conf = {
 	cellsAcross : 5, cellsDown : 5 //you can change/parametize these if you like. Note, w should be an odd number, or else weirdness.
 }
 
-function drawHexFace(con, seed, iconFillStyle, circleFillStyle, innerProportion){ //draws one over a circle, where radius of the inner icon = (radius of circle)*innerProportion. innerProportion is optional and defaults to 0.8.
+function drawHexFace(con, spec, iconFillStyle, circleFillStyle, innerProportion){ //draws one over a circle, where radius of the inner icon = (radius of circle)*innerProportion. innerProportion is optional and defaults to 0.8.
 	var scaleFactor = innerProportion || 0.75;
 	var circShade = 67;
 	var wi = con.canvas.width;
@@ -50,7 +50,11 @@ function drawHexFace(con, seed, iconFillStyle, circleFillStyle, innerProportion)
 	con.arc(wi/2, hi/2, ra, 0, Math.PI*2);
 	con.fill();
 	con.fillStyle = iconFillStyle;
-	pathHexFace(con, seed, sx, sy, swi, shi);
+	if(typeOf(spec) == "array"){
+		pathHexFaceFromSpec(con, spec, sx, sy, swi, shi);
+	}else{
+		pathHexFace(con, spec, sx, sy, swi, shi);
+	}
 	con.fill();
 }
 
