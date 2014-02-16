@@ -32,8 +32,8 @@ function newWell(seed){
 var hexfaces_root3over4 = Math.sqrt(3/4);
 var hexfaces_outerOverInner = Math.sqrt(5/4);
 
-function drawHexFace(con, seed, iconFillStyle, circleFillStyle){ //draws one over a circle.
-	var scaleFactor = 0.8;
+function drawHexFace(con, seed, iconFillStyle, circleFillStyle, innerProportion){ //draws one over a circle, where radius of the inner icon = (radius of circle)*innerProportion. innerProportion is optional and defaults to 0.8.
+	var scaleFactor = innerProportion || 0.75;
 	var circShade = 67;
 	var wi = con.canvas.width;
 	var hi = con.canvas.height;
@@ -43,6 +43,7 @@ function drawHexFace(con, seed, iconFillStyle, circleFillStyle){ //draws one ove
 	var sx = (wi - swi)/2;
 	var sy = (hi - shi)/2;
 	con.fillStyle = circleFillStyle;
+	con.beginPath();
 	con.arc(wi/2, hi/2, ra, 0, Math.PI*2);
 	con.fill();
 	con.fillStyle = iconFillStyle;
@@ -60,7 +61,7 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 	var span = ((wi < hi*widthOverHeight)?wi:hi*widthOverHeight);
 	var hexradius =
 		span/(2*(w-1)*hexfaces_root3over4 + 2); // ': (w-1)*hexradius*2*hexfaces_root3over4 + hexradius*2 == span
-	var katy = newWell(seed ^ 1303);
+	var katy = newWell(seed ^ 666);
 	var x = xin + wi/2 - Math.floor(w/2)*2*hexradius*hexfaces_root3over4;
 	var y = yin + hi/2 - (h-1)*hexradius /*which is the top cell in the glyph*/ + hexradius*Math.floor(w/2);
 	
@@ -198,6 +199,4 @@ function pathHexFace(con, seed, xin, yin, wi, hi){ //paths a centered maximized 
 			}
 		}
 	}
-	
-	con.fill();
 }
