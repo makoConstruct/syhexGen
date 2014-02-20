@@ -50,7 +50,7 @@ function drawHexFace(con, spec, iconFillStyle, circleFillStyle, innerProportion)
 	con.arc(wi/2, hi/2, ra, 0, Math.PI*2);
 	con.fill();
 	con.fillStyle = iconFillStyle;
-	if(typeOf(spec) == "array"){
+	if(typeof(spec) == "array"){
 		pathHexFaceFromSpec(con, spec, sx, sy, swi, shi);
 	}else{
 		pathHexFace(con, spec, sx, sy, swi, shi);
